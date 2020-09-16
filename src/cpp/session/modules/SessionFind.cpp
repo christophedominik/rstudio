@@ -844,10 +844,10 @@ private:
 
                   if (findResults().regex())
                      error = replacer.replaceRegex(eMatchOn, eMatchOff, searchPattern,
-                        replacePattern, &pLineInfo->encodedContents, &replaceMatchOff);
+                        replacePattern, &pLineInfo->decodedContents, &replaceMatchOff);
                   else
                      replacer.replaceLiteral(eMatchOn, eMatchOff, replacePattern,
-                           &pLineInfo->encodedContents, &replaceMatchOff);
+                           &pLineInfo->decodedContents, &replaceMatchOff);
 
                   if (!encoding_.empty())
                   {
