@@ -842,15 +842,23 @@ private:
 
                   pProgress->addUnits(1);
 
-                  if (findResults().regex())
-                     error = replacer.replaceRegex(eMatchOn, eMatchOff, searchPattern,
-                        replacePattern, &pLineInfo->decodedContents, &replaceMatchOff);
-                  else
-                     replacer.replaceLiteral(eMatchOn, eMatchOff, replacePattern,
-                           &pLineInfo->decodedContents, &replaceMatchOff);
-
-                  if (!encoding_.empty())
+                  if (encoding_.empty())
                   {
+                     if (findResults().regex())
+                        error = replacer.replaceRegex(eMatchOn, eMatchOff, searchPattern,
+                                                      replacePattern, &pLineInfo->decodedContents, &replaceMatchOff);
+                     else
+                        replacer.replaceLiteral(eMatchOn, eMatchOff, replacePattern,
+                                                &pLineInfo->decodedContents, &replaceMatchOff);
+                  }
+                  else
+                  {
+                     if (findResults().regex())
+                        error = replacer.replaceRegex(eMatchOn, eMatchOff, searchPattern,
+                                                      replacePattern, &pLineInfo->encodedContents, &replaceMatchOff);
+                     else
+                        replacer.replaceLiteral(eMatchOn, eMatchOff, replacePattern,
+                                                &pLineInfo->encodedContents, &replaceMatchOff);
                      // calculate utf8 matchOff
                      size_t utf8Length;
                      error = string_utils::utf8Distance(pLineInfo->decodedContents.begin(),
@@ -899,8 +907,13 @@ private:
             // write the new line to file
             if (!findResults().preview())
             {
-               Error error = writeToFile(pLineInfo->encodedContents,
+               Error error;
+               if (encoding_.empty())
+                  error = writeToFile(pLineInfo->decodedContents,
                      pLineInfo->leadingWhitespace, pLineInfo->trailingWhitespace);
+               else
+                  error = writeToFile(pLineInfo->encodedContents,
+                                      pLineInfo->leadingWhitespace, pLineInfo->trailingWhitespace);
                if (error)
                   addReplaceErrorMessage(error.asString(), pErrorMessage, pReplaceMatchOn,
                      pReplaceMatchOff, &lineSuccess);
